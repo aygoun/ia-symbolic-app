@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  argumentation-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: argumentation-api
+    ports:
+      - "5002:5002"
+    environment:
+      OPENAI_API_KEY: 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 
+      PORT: 5002
+    restart: unless-stopped
+
