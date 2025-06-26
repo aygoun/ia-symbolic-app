@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { llm_backend, llm_system_prompt } from "../constants/llm";
 
 const openai = new OpenAI({
-  baseURL: "https://openrouter.ai/api/v1",
+  baseURL: "https://api.openai.com/v1",
   apiKey: llm_backend.model.API_KEY,
   dangerouslyAllowBrowser: true,
 });
@@ -71,7 +71,9 @@ export async function analyzeText(text: string): Promise<AnalysisResponse> {
     });
 
     console.log(response.choices[0].message.content);
-    return response.choices[0].message.content as unknown as AnalysisResponse;
+    return JSON.parse(
+      response.choices[0].message.content || "{}"
+    ) as AnalysisResponse;
   } catch (error) {
     console.error("Error analyzing text:", error);
     throw error;
@@ -95,7 +97,9 @@ export async function validateArgument(
       ],
     });
     console.log(response.choices[0].message.content);
-    return response.choices[0].message.content as unknown as ValidationResponse;
+    return JSON.parse(
+      response.choices[0].message.content || "{}"
+    ) as ValidationResponse;
   } catch (error) {
     console.error("Error validating argument:", error);
     throw error;
@@ -117,7 +121,9 @@ export async function detectFallacies(text: string): Promise<FallacyResponse> {
       ],
     });
     console.log(response.choices[0].message.content);
-    return response.choices[0].message.content as unknown as FallacyResponse;
+    return JSON.parse(
+      response.choices[0].message.content || "{}"
+    ) as FallacyResponse;
   } catch (error) {
     console.error("Error detecting fallacies:", error);
     throw error;

@@ -1,7 +1,7 @@
 export const llm_backend = {
   model: {
     API_KEY: process.env.EXPO_PUBLIC_OPENAI_API_KEY || "",
-    name: "openai/gpt-4o",
+    name: "gpt-4.1-nano",
     dangerouslyAllowBrowser: true,
   },
 };

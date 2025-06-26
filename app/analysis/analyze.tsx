@@ -17,6 +17,7 @@ import {
   AnalysisResponse,
   analyzeText as analyzeTextApi,
   getErrorMessage,
+  Argument,
 } from "@/services/api";
 import { ArgumentCard } from "@/components/ui/ArgumentCard";
 import { QualityBadge } from "@/components/ui/QualityBadge";
@@ -126,10 +127,11 @@ export default function AnalyzeScreen() {
                 <ThemedText style={styles.argumentItem}>
                   {result.text}
                 </ThemedText>
-                {result.arguments.map((arg) => (
-                  <ArgumentCard key={arg.id} {...arg} />
-                ))}
-                <QualityBadge score={result.overall_quality} />
+                {Object.entries(result.arguments).length > 0 &&
+                  result.arguments.map((arg: Argument) => (
+                    <ArgumentCard key={arg.id} {...arg} />
+                  ))}
+                <QualityBadge score={result?.overall_quality} />
               </>
             ) : null}
           </ThemedView>

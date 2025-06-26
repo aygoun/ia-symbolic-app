@@ -49,27 +49,27 @@ export const ValidationCard: React.FC<ValidationCardProps> = ({
             styles.typeBadge,
             {
               backgroundColor:
-                typeColors[formalization.type] || typeColors.other,
+                typeColors[formalization?.type] || typeColors.other,
             },
           ]}
         >
-          <ThemedText style={styles.typeText}>{formalization.type}</ThemedText>
+          <ThemedText style={styles.typeText}>{formalization?.type}</ThemedText>
         </View>
         <View style={styles.ruleBadge}>
           <ThemedText style={styles.ruleText}>
-            {formalization.rule.replace(/_/g, " ")}
+            {formalization?.rule?.replace(/_/g, " ")}
           </ThemedText>
         </View>
       </View>
       <ThemedText style={styles.sectionTitle}>Premises:</ThemedText>
-      {formalization.premises.map((premise, idx) => (
+      {formalization?.premises?.map((premise, idx) => (
         <ThemedText key={idx} style={styles.premiseItem}>
           • {premise}
         </ThemedText>
       ))}
       <ThemedText style={styles.sectionTitle}>Conclusion:</ThemedText>
       <ThemedText style={styles.conclusionText}>
-        {formalization.conclusion}
+        {formalization?.conclusion}
       </ThemedText>
       <ThemedText style={styles.sectionTitle}>Explanation:</ThemedText>
       <ThemedText style={styles.explanationText}>{explanation}</ThemedText>
@@ -99,6 +99,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,
+    flexWrap: "wrap",
   },
   validityText: {
     marginLeft: 8,

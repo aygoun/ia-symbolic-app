@@ -68,7 +68,7 @@ export default function FallaciesScreen() {
           </ThemedText>
         </ThemedView>
 
-        <ThemedView style={styles.inputContainer}>
+        <ThemedView>
           <TextInput
             style={[
               styles.textInput,
@@ -80,15 +80,17 @@ export default function FallaciesScreen() {
             value={text}
             onChangeText={setText}
           />
-
-          <ThemedButton
-            title="Detect Fallacies"
-            onPress={detectFallacies}
-            disabled={!text.trim()}
-            loading={loading}
-            textColor={Colors[colorScheme ?? "light"].background}
-          />
         </ThemedView>
+        <ThemedButton
+          title="Detect Fallacies"
+          onPress={detectFallacies}
+          disabled={!text.trim()}
+          loading={loading}
+          textColor={Colors[colorScheme ?? "light"].background}
+          style={{
+            marginBottom: 20,
+          }}
+        />
 
         {(result || error) && (
           <ThemedView
@@ -190,9 +192,6 @@ const styles = StyleSheet.create({
   infoText: {
     marginLeft: 12,
     flex: 1,
-  },
-  inputContainer: {
-    marginBottom: 20,
   },
   textInput: {
     borderWidth: 1,

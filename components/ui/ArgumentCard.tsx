@@ -96,6 +96,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,
+    flexWrap: "wrap",
   },
   argumentType: {
     marginLeft: 8,

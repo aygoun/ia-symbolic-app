@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,
+    flexWrap: "wrap",
   },
   typeBadge: {
     backgroundColor: "#FF9500",
@@ -131,9 +132,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   highlight: {
-    backgroundColor: "#FFF2CC",
-    color: "#FF9500",
-    fontWeight: "bold",
+    fontWeight: "600",
     borderRadius: 4,
     paddingHorizontal: 2,
   },
