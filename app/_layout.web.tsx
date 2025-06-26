@@ -9,7 +9,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import "react-native-reanimated";
-
+import { Analytics } from "@vercel/analytics/react";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
@@ -49,6 +49,7 @@ export default function RootLayout() {
           <StatusBar style="auto" />
         </ThemeProvider>
       </View>
+      <Analytics />
     </View>
   );
 }
