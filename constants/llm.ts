@@ -1,8 +1,6 @@
 export const llm_backend = {
   model: {
-    API_KEY:
-      //process.env.EXPO_PUBLIC_OPENAI_API_KEY ||
-      "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",
+    API_KEY: process.env.EXPO_PUBLIC_OPENAI_API_KEY || "",
     name: "openai/gpt-4o",
   },
 };
