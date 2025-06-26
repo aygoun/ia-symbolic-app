@@ -4,6 +4,7 @@ import { llm_backend, llm_system_prompt } from "../constants/llm";
 const openai = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
   apiKey: llm_backend.model.API_KEY,
+  dangerouslyAllowBrowser: true,
 });
 
 export type Argument = {
@@ -20,7 +21,6 @@ export type AnalysisResponse = {
   text: string;
   arguments: Argument[];
   overall_quality: number;
-  error?: string;
 };
 
 export type FallacyInstance = {
@@ -34,7 +34,6 @@ export type FallacyResponse = {
   text: string;
   fallacies: FallacyInstance[];
   execution_time: number;
-  error?: string;
 };
 
 export type ValidationFormalization = {
@@ -49,7 +48,6 @@ export type ValidationResponse = {
   formalization: ValidationFormalization;
   explanation: string;
   execution_time: number;
-  error?: string;
 };
 
 export type ChatResponse = {

@@ -117,12 +117,7 @@ Exemple de retour attendu :
 
 Tu es un expert en logique formelle. Ton objectif est d'analyser un argument et de déterminer s'il est logiquement valide.
 
-Tâche :
-
-Analyse l'argument suivant :
-**\$input**
-
-Et retourne un objet JSON strictement conforme au format suivant :
+Retourne un objet JSON strictement conforme au format suivant :
 
 Format de sortie attendu :
 {
