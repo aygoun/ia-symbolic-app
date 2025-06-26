@@ -18,6 +18,8 @@ import {
   analyzeText as analyzeTextApi,
   getErrorMessage,
 } from "@/services/api";
+import { ArgumentCard } from "@/components/ui/ArgumentCard";
+import { QualityBadge } from "@/components/ui/QualityBadge";
 
 export default function AnalyzeScreen() {
   const [text, setText] = useState("");
@@ -119,34 +121,15 @@ export default function AnalyzeScreen() {
             ) : result ? (
               <>
                 <ThemedText style={styles.resultAnalysis}>
-                  <ThemedText type="defaultSemiBold">Main claim: </ThemedText>
-                  {result.mainClaim}
+                  <ThemedText type="defaultSemiBold">Analyzed text:</ThemedText>
                 </ThemedText>
-
-                <ThemedText style={styles.resultAnalysis}>
-                  <ThemedText type="defaultSemiBold">
-                    Supporting arguments:
-                  </ThemedText>
+                <ThemedText style={styles.argumentItem}>
+                  {result.text}
                 </ThemedText>
-                {result.supportingArguments.map((arg, index) => (
-                  <ThemedText key={index} style={styles.argumentItem}>
-                    {index + 1}. {arg}
-                  </ThemedText>
+                {result.arguments.map((arg) => (
+                  <ArgumentCard key={arg.id} {...arg} />
                 ))}
-
-                <ThemedText style={styles.resultAnalysis}>
-                  <ThemedText type="defaultSemiBold">
-                    Argument structure:{" "}
-                  </ThemedText>
-                  {result.structure}
-                </ThemedText>
-
-                <ThemedText style={styles.resultAnalysis}>
-                  <ThemedText type="defaultSemiBold">
-                    Argument strength:{" "}
-                  </ThemedText>
-                  {result.strength}
-                </ThemedText>
+                <QualityBadge score={result.overall_quality} />
               </>
             ) : null}
           </ThemedView>
