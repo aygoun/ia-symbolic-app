@@ -1,34 +1,61 @@
 import OpenAI from "openai";
-import { llm_backend } from "../constants/llm";
+import { llm_backend, llm_system_prompt } from "../constants/llm";
 
-// Types for API responses
+const openai = new OpenAI({
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: llm_backend.model.API_KEY,
+});
+
+export type Argument = {
+  id: string;
+  text: string;
+  premises: string[];
+  conclusion: string;
+  structure: "deductive" | "inductive" | "analogical" | "abductive" | "other";
+  validity: boolean;
+  fallacies: string[];
+};
+
 export type AnalysisResponse = {
-  mainClaim: string;
-  supportingArguments: string[];
-  structure: string;
-  strength: string;
+  text: string;
+  arguments: Argument[];
+  overall_quality: number;
+  error?: string;
+};
+
+export type FallacyInstance = {
+  type: string; // snake_case, e.g. 'slippery_slope'
+  confidence: number; // between 0 and 1
+  span: [number, number]; // [start_index, end_index]
+  explanation: string;
+};
+
+export type FallacyResponse = {
+  text: string;
+  fallacies: FallacyInstance[];
+  execution_time: number;
+  error?: string;
+};
+
+export type ValidationFormalization = {
+  type: "propositional" | "predicate" | "other";
+  premises: string[];
+  conclusion: string;
+  rule: string;
 };
 
 export type ValidationResponse = {
-  isValid: boolean;
-  analysis: string;
+  valid: boolean;
+  formalization: ValidationFormalization;
   explanation: string;
-};
-
-export type Fallacy = {
-  type: string;
-  description: string;
-  location: string;
-  explanation: string;
+  execution_time: number;
+  error?: string;
 };
 
 export type ChatResponse = {
   message: string;
   timestamp: Date;
 };
-
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL || "https://api.example.com";
 
 /**
  * Performs a complete analysis of argumentative text
@@ -37,19 +64,16 @@ const API_BASE_URL =
  */
 export async function analyzeText(text: string): Promise<AnalysisResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/analyze`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text }),
+    const response = await openai.chat.completions.create({
+      model: llm_backend.model.name,
+      messages: [
+        { role: "system", content: llm_system_prompt.analyze },
+        { role: "user", content: text },
+      ],
     });
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    return await response.json();
+    console.log(response.choices[0].message.content);
+    return response.choices[0].message.content as unknown as AnalysisResponse;
   } catch (error) {
     console.error("Error analyzing text:", error);
     throw error;
@@ -65,19 +89,15 @@ export async function validateArgument(
   text: string
 ): Promise<ValidationResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/validate`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text }),
+    const response = await openai.chat.completions.create({
+      model: llm_backend.model.name,
+      messages: [
+        { role: "system", content: llm_system_prompt.validate },
+        { role: "user", content: text },
+      ],
     });
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    return await response.json();
+    console.log(response.choices[0].message.content);
+    return response.choices[0].message.content as unknown as ValidationResponse;
   } catch (error) {
     console.error("Error validating argument:", error);
     throw error;
@@ -89,21 +109,17 @@ export async function validateArgument(
  * @param text The text to check for fallacies
  * @returns Array of detected fallacies
  */
-export async function detectFallacies(text: string): Promise<Fallacy[]> {
+export async function detectFallacies(text: string): Promise<FallacyResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/fallacies`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text }),
+    const response = await openai.chat.completions.create({
+      model: llm_backend.model.name,
+      messages: [
+        { role: "system", content: llm_system_prompt.fallacies },
+        { role: "user", content: text },
+      ],
     });
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    return await response.json();
+    console.log(response.choices[0].message.content);
+    return response.choices[0].message.content as unknown as FallacyResponse;
   } catch (error) {
     console.error("Error detecting fallacies:", error);
     throw error;
@@ -117,10 +133,6 @@ export async function detectFallacies(text: string): Promise<Fallacy[]> {
  */
 export async function sendChatMessage(message: string): Promise<ChatResponse> {
   try {
-    const openai = new OpenAI({
-      apiKey: llm_backend.model.API_KEY,
-    });
-
     const response = await openai.chat.completions.create({
       model: llm_backend.model.name,
       messages: [

@@ -15,13 +15,15 @@ import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import {
   detectFallacies as detectFallaciesApi,
-  Fallacy,
   getErrorMessage,
+  FallacyResponse,
+  FallacyInstance,
 } from "@/services/api";
+import { FallacyCard } from "@/components/ui/FallacyCard";
 
 export default function FallaciesScreen() {
   const [text, setText] = useState("");
-  const [fallacies, setFallacies] = useState<Fallacy[] | null>(null);
+  const [result, setResult] = useState<FallacyResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const colorScheme = useColorScheme();
@@ -30,13 +32,13 @@ export default function FallaciesScreen() {
     if (!text.trim()) return;
 
     setLoading(true);
-    setFallacies(null);
+    setResult(null);
     setError(null);
 
     try {
       // Call the API service
       const response = await detectFallaciesApi(text);
-      setFallacies(response);
+      setResult(response);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -88,7 +90,7 @@ export default function FallaciesScreen() {
           />
         </ThemedView>
 
-        {(fallacies || error) && (
+        {(result || error) && (
           <ThemedView
             style={[
               styles.resultsContainer,
@@ -103,24 +105,24 @@ export default function FallaciesScreen() {
                 name={
                   error
                     ? "xmark.circle.fill"
-                    : fallacies && fallacies.length > 0
-                      ? "exclamationmark.triangle.fill"
-                      : "checkmark.circle.fill"
+                    : result && result.fallacies && result.fallacies.length > 0
+                    ? "exclamationmark.triangle.fill"
+                    : "checkmark.circle.fill"
                 }
                 color={
                   error
                     ? "#FF3B30"
-                    : fallacies && fallacies.length > 0
-                      ? "#FF9500"
-                      : "#34C759"
+                    : result && result.fallacies && result.fallacies.length > 0
+                    ? "#FF9500"
+                    : "#34C759"
                 }
               />
               <ThemedText type="subtitle" style={styles.resultsTitle}>
                 {error
                   ? "Detection Error"
-                  : fallacies && fallacies.length === 0
-                    ? "No fallacies detected"
-                    : `${fallacies?.length || 0} Fallacies Detected`}
+                  : result && result.fallacies && result.fallacies.length === 0
+                  ? "No fallacies detected"
+                  : `${result?.fallacies?.length || 0} Fallacies Detected`}
               </ThemedText>
             </ThemedView>
 
@@ -132,43 +134,32 @@ export default function FallaciesScreen() {
                   connection.
                 </ThemedText>
               </>
-            ) : fallacies && fallacies.length === 0 ? (
+            ) : result && result.fallacies && result.fallacies.length === 0 ? (
               <ThemedView style={styles.noFallaciesContainer}>
                 <ThemedText style={styles.noFallaciesText}>
                   No logical fallacies were detected in your text. Good job!
                 </ThemedText>
               </ThemedView>
             ) : (
-              fallacies?.map((fallacy, index) => (
-                <ThemedView key={index} style={styles.fallacyItem}>
-                  <ThemedView style={styles.fallacyHeader}>
-                    <IconSymbol
-                      size={20}
-                      name="exclamationmark.triangle.fill"
-                      color="#FF9500"
-                    />
-                    <ThemedText
-                      type="defaultSemiBold"
-                      style={styles.fallacyType}
-                    >
-                      {fallacy.type}
-                    </ThemedText>
-                  </ThemedView>
-
-                  <ThemedText style={styles.fallacyDescription}>
-                    {fallacy.description}
-                  </ThemedText>
-
-                  <ThemedText style={styles.fallacyLocation}>
-                    <ThemedText type="defaultSemiBold">Location: </ThemedText>
-                    {fallacy.location}
-                  </ThemedText>
-
-                  <ThemedText style={styles.fallacyExplanation}>
-                    {fallacy.explanation}
-                  </ThemedText>
-                </ThemedView>
-              ))
+              <>
+                <ThemedText style={styles.resultAnalysis}>
+                  <ThemedText type="defaultSemiBold">Analyzed text:</ThemedText>
+                </ThemedText>
+                <ThemedText style={styles.argumentItem}>
+                  {result?.text}
+                </ThemedText>
+                {result?.fallacies?.map(
+                  (fallacy: FallacyInstance, idx: number) => (
+                    <FallacyCard key={idx} {...fallacy} text={result.text} />
+                  )
+                )}
+                <ThemedText style={styles.executionTime}>
+                  <ThemedText type="defaultSemiBold">
+                    Execution time:
+                  </ThemedText>{" "}
+                  {result?.execution_time?.toFixed(2)}s
+                </ThemedText>
+              </>
             )}
           </ThemedView>
         )}
@@ -242,32 +233,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 12,
   },
-  fallacyItem: {
-    borderWidth: 1,
-    borderColor: "#FFD700",
-    borderRadius: 8,
-    padding: 12,
+  resultAnalysis: {
     marginBottom: 12,
-    backgroundColor: "rgba(255, 215, 0, 0.05)",
   },
-  fallacyHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
+  argumentItem: {
+    marginBottom: 12,
   },
-  fallacyType: {
-    marginLeft: 8,
-    color: "#FF9500",
-  },
-  fallacyDescription: {
-    marginBottom: 8,
-  },
-  fallacyLocation: {
-    marginBottom: 8,
-    fontSize: 14,
-  },
-  fallacyExplanation: {
-    fontSize: 14,
+  executionTime: {
+    marginTop: 12,
   },
   errorText: {
     fontWeight: "bold",

@@ -18,10 +18,12 @@ import {
   validateArgument as validateArgumentApi,
   ValidationResponse,
 } from "@/services/api";
+import { ValidationCard } from "@/components/ui/ValidationCard";
 
 export default function ValidateScreen() {
   const [text, setText] = useState("");
   const [result, setResult] = useState<ValidationResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const colorScheme = useColorScheme();
 
@@ -36,11 +38,7 @@ export default function ValidateScreen() {
       const response = await validateArgumentApi(text);
       setResult(response);
     } catch (error) {
-      setResult({
-        isValid: false,
-        analysis: `Error: ${getErrorMessage(error)}`,
-        explanation: "Please try again.",
-      });
+      setError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -90,11 +88,13 @@ export default function ValidateScreen() {
           />
         </ThemedView>
 
-        {result && (
+        {(result || error) && (
           <ThemedView
             style={[
               styles.resultContainer,
-              result.isValid ? styles.validResult : styles.invalidResult,
+              result && result.valid
+                ? styles.validResult
+                : styles.invalidResult,
             ]}
           >
             <ThemedView
@@ -103,20 +103,28 @@ export default function ValidateScreen() {
               <IconSymbol
                 size={24}
                 name={
-                  result.isValid ? "checkmark.circle.fill" : "xmark.circle.fill"
+                  result && result.valid
+                    ? "checkmark.circle.fill"
+                    : "xmark.circle.fill"
                 }
-                color={result.isValid ? "#34C759" : "#FF3B30"}
+                color={result && result.valid ? "#34C759" : "#FF3B30"}
               />
               <ThemedText type="subtitle" style={styles.resultTitle}>
-                {result.isValid ? "Valid Argument" : "Invalid Argument"}
+                {result && result.valid ? "Valid Argument" : "Invalid Argument"}
               </ThemedText>
             </ThemedView>
-            <ThemedText style={styles.resultAnalysis}>
-              {result.analysis}
-            </ThemedText>
-            <ThemedText style={styles.resultExplanation}>
-              {result.explanation}
-            </ThemedText>
+            {error ? (
+              <ThemedText style={styles.resultExplanation}>{error}</ThemedText>
+            ) : (
+              result && (
+                <ValidationCard
+                  valid={result.valid}
+                  formalization={result.formalization}
+                  explanation={result.explanation}
+                  execution_time={result.execution_time}
+                />
+              )
+            )}
           </ThemedView>
         )}
       </ScrollView>
