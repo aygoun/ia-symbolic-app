@@ -1,3 +1,6 @@
+import OpenAI from "openai";
+import { llm_backend } from "../constants/llm";
+
 // Types for API responses
 export type AnalysisResponse = {
   mainClaim: string;
@@ -24,7 +27,6 @@ export type ChatResponse = {
   timestamp: Date;
 };
 
-// Base API URL - replace with your actual backend URL in production
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_URL || "https://api.example.com";
 
@@ -60,7 +62,7 @@ export async function analyzeText(text: string): Promise<AnalysisResponse> {
  * @returns Validation results
  */
 export async function validateArgument(
-  text: string,
+  text: string
 ): Promise<ValidationResponse> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/validate`, {
@@ -109,21 +111,38 @@ export async function detectFallacies(text: string): Promise<Fallacy[]> {
 }
 
 /**
- * Sends a message to the chat AI assistant
+ * Sends a message to the chat AI assistant using the latest o3-mini model via OpenRouter
  * @param message The user message to send
  * @returns AI response message
  */
 export async function sendChatMessage(message: string): Promise<ChatResponse> {
   try {
-    // Simulate some delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const openai = new OpenAI({
+      apiKey: llm_backend.model.API_KEY,
+    });
 
-    // Always throw an error as requested
-    throw new Error(
-      "Chat service is currently unavailable. Please try again later.",
-    );
+    const response = await openai.chat.completions.create({
+      model: llm_backend.model.name,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are an AI assistant specialized in analyzing arguments. Provide clear, structured, and insightful responses about the logical structure, strengths, and weaknesses of the argument.",
+        },
+        {
+          role: "user",
+          content: message,
+        },
+      ],
+    });
+
+    return {
+      message:
+        response.choices[0].message.content || "No response from OpenIA API.",
+      timestamp: new Date(),
+    };
   } catch (error) {
-    console.error("Error sending chat message:", error);
+    console.error("Error:", error);
     throw error;
   }
 }

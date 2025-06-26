@@ -15,6 +15,8 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Markdown from "react-native-markdown-display";
+import { getMarkdownStyle } from "@/components/ui/MarkdownStyles";
 
 type Message = {
   id: string;
@@ -60,7 +62,7 @@ export default function ChatScreen() {
     }, 100);
 
     try {
-      // Call the chat API service (which always throws an error)
+      // Call the chat API service with context for argument analysis
       const response = await sendChatMessage(currentMessage);
 
       const botMessage: Message = {
@@ -119,6 +121,9 @@ export default function ChatScreen() {
     }
   };
 
+  const getMarkdownTextColor = (msg: { isUser: boolean; isError?: boolean }) =>
+    getTextColor(msg as Message);
+
   return (
     <ThemedView style={styles.container}>
       <KeyboardAvoidingView
@@ -157,17 +162,15 @@ export default function ChatScreen() {
                   </ThemedText>
                 </ThemedView>
               )}
-              <ThemedText
-                style={[
-                  styles.messageText,
-                  {
-                    color: getTextColor(message),
-                    fontWeight: message.isError ? "600" : "normal",
-                  },
-                ]}
+              <Markdown
+                style={getMarkdownStyle(
+                  colorScheme,
+                  getMarkdownTextColor,
+                  message
+                )}
               >
                 {message.text}
-              </ThemedText>
+              </Markdown>
               <ThemedText
                 style={[
                   styles.timestamp,
